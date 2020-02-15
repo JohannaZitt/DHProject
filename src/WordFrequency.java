@@ -19,20 +19,33 @@ import org.xml.sax.SAXException;
 public class WordFrequency {
 
   //ToDo
-  // -Stemming anwenden!
+  // -Stemming anwenden?!
   // -Wortumbrüche entfernen!
 
   public static void main(String[] args)
       throws ParserConfigurationException, IOException, SAXException {
 
-    // xml.Datei einlesen:
-    File file = new File("C:/Users/jojoz/IdeaProjects/DHProject/files/input/16/16105.xml");
-    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-    Document doc = dBuilder.parse(file);
+    String periode = "16";
 
-    // InputText, der bearbeitet werden soll
-    String inputText = doc.getElementsByTagName("TEXT").item(0).getTextContent();
+    File directoryPath = new File("C:/Users/jojoz/IdeaProjects/DHProject/files/input/" + periode);
+    File[] directoryPaths = directoryPath.listFiles();
+
+    // Text,
+    String inputText = "";
+
+    // Aufbauen des Textes, dessen Wortfrequenz gezählt werden sollen
+    for (int i = 0; i < directoryPaths.length; i++) {
+      String filename = directoryPaths[i].getName();
+
+      File file = new File("C:/Users/jojoz/IdeaProjects/DHProject/files/input/" + periode + "/" + filename);
+
+      DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+      Document doc = dBuilder.parse(file);
+
+      inputText = inputText + " " + doc.getElementsByTagName("TEXT").item(0).getTextContent();
+    }
+
     // entfernen aller Satzzeichen und lowerCase
     inputText = inputText.replaceAll("\\p{Punct}", "");
     inputText = inputText.toLowerCase();
@@ -57,7 +70,7 @@ public class WordFrequency {
 
     //alle Tokens mit Häufigkeit in Datei "TokensFrequency" abspeichern:
     PrintWriter tokensWriter = new PrintWriter(
-        new BufferedWriter(new FileWriter("files/output/TokensFreuquency.txt")));
+        new BufferedWriter(new FileWriter("files/output/WordFrequencies/" + periode + "WordFrequency.txt")));
     sortedArrayList.forEach(tokensWriter::println);
     tokensWriter.flush();
     tokensWriter.close();
