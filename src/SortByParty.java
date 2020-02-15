@@ -11,7 +11,7 @@ import org.xml.sax.SAXException;
 public class SortByParty {
 
   //TODO:
-  // - Partei spezifische Dokumente anvertigen
+  // - Partei spezifische Dokumente anfertigen
   // - wie kleinteilig wollen wir die Partei spezifischen Dokumente haben? pro debatte, pro Wahlperiode? -> erst mal pro Wahlperiode
 
   public static void main(String[] args)
