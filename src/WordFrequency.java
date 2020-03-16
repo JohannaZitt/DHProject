@@ -18,61 +18,72 @@ import org.xml.sax.SAXException;
 
 public class WordFrequency {
 
-  //ToDo
-  // -Stemming anwenden?!
-  // -Wortumbrüche entfernen!
+  //READ.ME
+  //INPUT: Parlamentsdebatten (file/input/all)
+  //OUTPUT: Worthäufigkeiten pro Wahlperiode (file/output/WordFrequencies)
+  //zählen von Worthäufigkeiten pro Parlamentsdebatte
 
   public static void main(String[] args)
       throws ParserConfigurationException, IOException, SAXException {
 
-    String periode = "16";
+    File dirPath = new File("C:/Users/jojoz/IdeaProjects/DHProject/files/input/all");
+    File[] dirPaths = dirPath.listFiles();
 
-    File directoryPath = new File("C:/Users/jojoz/IdeaProjects/DHProject/files/input/" + periode);
-    File[] directoryPaths = directoryPath.listFiles();
+    assert dirPaths != null;
+    for (File value : dirPaths) {
+      String periode = value.getName();
 
-    // Text,
-    String inputText = "";
+      File directoryPath = new File(
+          "C:/Users/jojoz/IdeaProjects/DHProject/files/input/all/" + periode);
+      File[] directoryPaths = directoryPath.listFiles();
 
-    // Aufbauen des Textes, dessen Wortfrequenz gezählt werden sollen
-    for (int i = 0; i < directoryPaths.length; i++) {
-      String filename = directoryPaths[i].getName();
+      // Text,
+      StringBuilder inputText = new StringBuilder();
 
-      File file = new File("C:/Users/jojoz/IdeaProjects/DHProject/files/input/" + periode + "/" + filename);
+      // Aufbauen des Textes, dessen Wortfrequenz gezählt werden sollen
+      assert directoryPaths != null;
+      for (File path : directoryPaths) {
+        String filename = path.getName();
 
-      DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-      Document doc = dBuilder.parse(file);
+        File file = new File(
+            "C:/Users/jojoz/IdeaProjects/DHProject/files/input/all/" + periode + "/" + filename);
 
-      inputText = inputText + " " + doc.getElementsByTagName("TEXT").item(0).getTextContent();
-    }
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(file);
 
-    // entfernen aller Satzzeichen und lowerCase
-    inputText = inputText.replaceAll("\\p{Punct}", "");
-    inputText = inputText.toLowerCase();
-
-    StringTokenizer tokenizer = new StringTokenizer(inputText);
-
-    // in Map werden Häufigkeiten der verschiedenen tokens gespeichert
-    Map<String, Integer> map = new HashMap<>();
-    String currentToken;
-    while (tokenizer.hasMoreTokens()) {
-      currentToken = tokenizer.nextToken();
-      if (map.containsKey(currentToken)) {
-        map.put(currentToken, map.get(currentToken) + 1);
-      } else {
-        map.put(currentToken, 1);
+        inputText.append(" ").append(doc.getElementsByTagName("TEXT").item(0).getTextContent());
       }
+
+      // entfernen aller Satzzeichen und lowerCase
+      inputText = new StringBuilder(inputText.toString().replaceAll("\\p{Punct}", ""));
+      inputText = new StringBuilder(inputText.toString().toLowerCase());
+
+      StringTokenizer tokenizer = new StringTokenizer(inputText.toString());
+
+      // in Map werden Häufigkeiten der verschiedenen tokens gespeichert
+      Map<String, Integer> map = new HashMap<>();
+      String currentToken;
+      while (tokenizer.hasMoreTokens()) {
+        currentToken = tokenizer.nextToken();
+        if (map.containsKey(currentToken)) {
+          map.put(currentToken, map.get(currentToken) + 1);
+        } else {
+          map.put(currentToken, 1);
+        }
+      }
+
+      // Hashmap sortieren
+      List<Entry<String, Integer>> sortedArrayList = new ArrayList<>(map.entrySet());
+      sortedArrayList.sort((o1, o2) -> o2.getValue() - o1.getValue());
+
+      //alle Tokens mit Häufigkeit in Datei "TokensFrequency" abspeichern:
+      PrintWriter tokensWriter = new PrintWriter(
+          new BufferedWriter(
+              new FileWriter("files/output/WordFrequencies/" + periode + "WordFrequency.txt")));
+      sortedArrayList.forEach(tokensWriter::println);
+      tokensWriter.flush();
+      tokensWriter.close();
     }
-
-    // Hashmap sortieren
-    List<Entry<String, Integer>> sortedArrayList = new ArrayList<>(map.entrySet());
-    sortedArrayList.sort((o1, o2) -> o2.getValue() - o1.getValue());
-
-    //alle Tokens mit Häufigkeit in Datei "TokensFrequency" abspeichern:
-    PrintWriter tokensWriter = new PrintWriter(
-        new BufferedWriter(new FileWriter("files/output/WordFrequencies/" + periode + "WordFrequency.txt")));
-    sortedArrayList.forEach(tokensWriter::println);
-    tokensWriter.flush();
-    tokensWriter.close();
   }
 }
